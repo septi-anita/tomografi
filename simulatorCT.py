@@ -217,7 +217,7 @@ def main():
             st.pyplot(fig0)
             st.write('Grafik1: sebelum pengurangan RS & ekstensi data')
             st.write('Grafik2: setelah pengurangan RS & sebelum ekstensi data')
-
+            st.write('Grafik3: setelah pengurangan RS & setelah ekstensi data')
 
         with col2:
             st.write ('Citra Asli')
