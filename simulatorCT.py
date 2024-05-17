@@ -215,6 +215,8 @@ def main():
             ax0.legend()
             # Menampilkan plot
             st.pyplot(fig0)
+            st.write(Grafik1: sebelum pengurangan RS & ekstensi data)
+            st.write(Grafik2: setelah pengurangan RS & sebelum ekstensi data)
 
 
         with col2:
