@@ -1,4 +1,4 @@
-#LIBRARY
+ #LIBRARY
 import streamlit as st
 from PIL import Image
 from skimage.data import shepp_logan_phantom
@@ -22,7 +22,7 @@ def main():
     translasi = st.sidebar.selectbox("Jumlah translasi", [5, 10, 20, 50, 100, 250, 500])
 
     derajat_rot = st.sidebar.number_input("Derajat rotasi", min_value=1, max_value=180, step=1)
-    
+
     #submit button
     submit_button = st.sidebar.button('Submit')
 
@@ -134,7 +134,7 @@ def main():
             return np.array(sums)
         rsrot = sum_elements(rsrot, idx_int)
 
-        #variabel plot sebelum pengurangan RS & ekstensi data
+        #1variabel plot sebelum pengurangan RS & ekstensi data
         rsrot_T=rsrot.T
         rsn=np.linspace(-1, 1, rsrot_T.shape[0])
         recons=iradon(rsrot_T, filter_name='ramp')
@@ -151,7 +151,7 @@ def main():
 
         rsrot_rdc=rdc(rsrot)
 
-        #variabel plot setelah pengurangan RS & sebelum ekstensi data
+        #2variabel plot setelah pengurangan RS & sebelum ekstensi data
         rsrot_rdc_T=rsrot_rdc.T
         rs_rdc=np.linspace(-1,1, rsrot_rdc.shape[1])
         recons_rdc=iradon(rsrot_rdc_T, filter_name='ramp')
@@ -166,7 +166,7 @@ def main():
         rsrot_interp[:, ::2] = arr
         rsrot_interp[:, 1::2] = new_data
 
-        #variabel plot setelah pengurangan RS & setelah ekstensi data
+        #3variabel plot setelah pengurangan RS & setelah ekstensi data
         rsrot_interp_T=rsrot_interp.T
         rint=np.linspace(-1,1,rsrot_interp.shape[1])
         recons_int=iradon(rsrot_interp_T, filter_name='ramp')
@@ -174,48 +174,83 @@ def main():
 
 
         # Display images in 2x3 layout
-        col1, col2 = st.columns(2)
+        col1, col2 = st.columns([5.7, 4.3])
 
         # Bagi daftar gambar menjadi dua bagian
-        images_part1 = [image, image]
-        fig1, ax1 = plt.subplots()
-        fig2, ax2 = plt.subplots()
-        fig3, ax3 = plt.subplots()
-        fig4, ax4 = plt.subplots()
-        fig5, ax5 = plt.subplots()
-        fig6, ax6 = plt.subplots()
+        images_part1 = image
+        fig0, ax0 = plt.subplots(figsize=(8, 6))
+        fig1, ax1 = plt.subplots(figsize=(8, 6))
+        fig2, ax2 = plt.subplots(figsize=(3, 3))
+        fig3, ax3 = plt.subplots(figsize=(8, 6))
+        fig4, ax4 = plt.subplots(figsize=(3, 3))
+        fig5, ax5 = plt.subplots(figsize=(8, 6))
+        fig6, ax6 = plt.subplots(figsize=(3, 3))
 
 
         # Tampilkan gambar-gambar dari bagian pertama di baris pertama
         with col1:
-            st.image(images_part1[0], use_column_width=True)
+
+            # Checkbox untuk memilih grafik
+#            show_graph1 = st.checkbox('Grafik 1')
+#            show_graph2 = st.checkbox('Grafik 2')
+#            show_graph3 = st.checkbox('Grafik 3')
+            # Plot grafik berdasarkan pilihan checkbox
+#            if show_graph1:
+               #plt.figure(figsize=(8, 6)) 
+#               plt.plot(rsn, rsrot_T[:,0], label='Grafik 1')
+#            if show_graph2:
+               #plt.figure(figsize=(8, 6)) 
+#               plt.plot(rs_rdc, rsrot_rdc_T[:,0], label='Grafik 2')
+#            if show_graph3:
+               #plt.figure(figsize=(8, 6)) 
+#               plt.plot(rint, rsrot_interp_T[:,0], label='Grafik 3')
+
+
+            st.write ('Plot Profil intensitas')
+#            plt.figure(figsize=(8, 6))
+            ax0.plot(rsn, rsrot_T[:,0], label='Grafik 1')
+            ax0.plot(rs_rdc, rsrot_rdc_T[:,0], label='Grafik 2')
+            ax0.plot(rint, rsrot_interp_T[:,0], label='Grafik 3')
+            # Menambahkan legenda
+            ax0.legend()
+            # Menampilkan plot
+            st.pyplot(fig0)
+
+
         with col2:
-            st.image(images_part1[1], use_column_width=True)
+            st.write ('Citra Asli')
+            st.image(images_part1, use_column_width=True)
 
         # Tampilkan gambar-gambar dari bagian kedua di baris kedua
         with col1:
+#            st.write ('Sinogram sebelum pengurangan RS & ekstensi data')
             ax1.pcolor(thetas, rsn, rsrot_T,  cmap='gray')
             ax1.set_xlabel(r'$\theta$', fontsize=20)
             ax1.set_ylabel('$r$', fontsize=20)
         with col2:
+#            st.write ('Citra hasil rekonstruksi sebelum pengurangan RS & ekstensi data')
             ax2.imshow(recons, cmap='gray')
             ax2.axis('off')
 
         # Tampilkan gambar-gambar dari bagian pertama di baris ketiga
         with col1:
+#            st.write ('Sinogram setelah pengurangan RS & sebelum ekstensi data')
             ax3.pcolor(thetas, rs_rdc, rsrot_rdc_T,  cmap='gray')
             ax3.set_xlabel(r'$\theta$', fontsize=20)
             ax3.set_ylabel('$r$', fontsize=20)
         with col2:
+#            st.write ('Citra hasil rekonstruksi setelah pengurangan RS & sebelum ekstensi data')
             ax4.imshow(recons_rdc, cmap='gray')
             ax4.axis('off')
 
         # Tampilkan gambar-gambar dari bagian kedua di baris keempat
         with col1:
+#            st.write ('Sinogram setelah pengurangan RS & setelah ekstensi data')
             ax5.pcolor(thetas, rint, rsrot_interp_T, shading='auto', cmap='gray')
             ax5.set_xlabel(r'$\theta$', fontsize=20)
             ax5.set_ylabel('$r$', fontsize=20)
         with col2:
+#            st.write ('Citra hasil rekonstruksi setelah pengurangan RS & setelah ekstensi data')
             ax6.imshow(recons_int, cmap='gray')
             ax6.axis('off')
 
