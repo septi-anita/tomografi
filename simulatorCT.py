@@ -171,7 +171,12 @@ def main():
         rint=np.linspace(-1,1,rsrot_interp.shape[1])
         recons_int=iradon(rsrot_interp_T, filter_name='ramp')
 
+        #mengganti tipe data float64 to uint8
+        recons_int_scaled = recons_int * 255
+        recons_int_uint8 = recons_int_scaled.astype(np.uint8)
 
+        image_scaled = image * 255
+        image_uint8 = image_scaled.astype(np.uint8)
 
         # Display images in 2x3 layout
         col1, col2 = st.columns([5.7, 4.3])
@@ -189,22 +194,6 @@ def main():
 
         # Tampilkan gambar-gambar dari bagian pertama di baris pertama
         with col1:
-
-            # Checkbox untuk memilih grafik
-#            show_graph1 = st.checkbox('Grafik 1')
-#            show_graph2 = st.checkbox('Grafik 2')
-#            show_graph3 = st.checkbox('Grafik 3')
-            # Plot grafik berdasarkan pilihan checkbox
-#            if show_graph1:
-               #plt.figure(figsize=(8, 6)) 
-#               plt.plot(rsn, rsrot_T[:,0], label='Grafik 1')
-#            if show_graph2:
-               #plt.figure(figsize=(8, 6)) 
-#               plt.plot(rs_rdc, rsrot_rdc_T[:,0], label='Grafik 2')
-#            if show_graph3:
-               #plt.figure(figsize=(8, 6)) 
-#               plt.plot(rint, rsrot_interp_T[:,0], label='Grafik 3')
-
 
             st.write ('Plot Profil intensitas')
 #            plt.figure(figsize=(8, 6))
@@ -255,13 +244,29 @@ def main():
 #            st.write ('Citra hasil rekonstruksi setelah pengurangan RS & setelah ekstensi data')
             ax6.imshow(recons_int, cmap='gray')
             ax6.axis('off')
+        # Tampilkan histogram citra asli & rekonstruksi
+     
+        with col1:
+#            st.write ('histogram citra asli')
+            ax7.hist(image_uint8.ravel(), bins=256, range=[0,256], color='black', alpha=0.7)
+            ax7.set_xlabel(r'Intensitas Piksel')
+            ax7.set_ylabel('Frekuensi')
+            ax7.set_title('histogram citra asli')
+        with col2:
+#            st.write ('histogram citra rekonstruksi')
+            ax8.hist(recons_int_uint8.ravel(), bins=256, range=[0,256], color='black', alpha=0.7)
+            ax8.set_xlabel(r'Intensitas Piksel')
+            ax8.set_ylabel('Frekuensi')
+            ax8.set_title('histogram citra rekonstruksi')
 
-        st.pyplot(fig1)
+        st.pyplot(fig1
         st.pyplot(fig2)
         st.pyplot(fig3)
         st.pyplot(fig4)
         st.pyplot(fig5)
         st.pyplot(fig6)
+        st.pyplot(fig7)
+        st.pyplot(fig8)
 
 if __name__ == '__main__':
     main()
