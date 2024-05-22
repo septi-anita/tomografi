@@ -259,7 +259,7 @@ def main():
             ax8.set_ylabel('Frekuensi')
             ax8.set_title('histogram citra rekonstruksi')
 
-        st.pyplot(fig1
+        st.pyplot(fig1)
         st.pyplot(fig2)
         st.pyplot(fig3)
         st.pyplot(fig4)
