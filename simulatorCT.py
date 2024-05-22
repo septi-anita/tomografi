@@ -190,6 +190,8 @@ def main():
         fig4, ax4 = plt.subplots(figsize=(3, 3))
         fig5, ax5 = plt.subplots(figsize=(8, 6))
         fig6, ax6 = plt.subplots(figsize=(3, 3))
+        fig7, ax7 = plt.subplots(figsize=(8, 6))
+        fig8, ax8 = plt.subplots(figsize=(8, 6))
 
 
         # Tampilkan gambar-gambar dari bagian pertama di baris pertama
