@@ -8,7 +8,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 from skimage.transform import rotate
 
+def float64touint8(matriks_float64) :
+          # Normalisasi matriks ke dalam rentang [0, 1]
+          min_val = np.min(matriks_float64)
+          max_val = np.max(matriks_float64)
+          matriks_normalized = (matriks_float64 - min_val) / (max_val - min_val)
 
+          # Skala matriks yang sudah dinormalisasi ke dalam rentang [0, 255] dan konversi ke uint8
+          matriks_scaled = (matriks_normalized * 255).astype(np.uint8)
+          return matriks_scaled
 
 # Main function
 def main():
@@ -28,16 +36,11 @@ def main():
 
     # Process image if uploaded
     if submit_button and radio_button is not None:
-        #image = Image.open(image)
-        
+     
         if radio_button=="Citra Kompleks":
             image = Image.open(uploaded)
-            #file_name = uploaded.name
-            #file_name = list(uploaded.keys())[0]
-#            image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
             image = image.convert('L')  # Konversi ke skala abu-abu
-            image = np.array(image)#image = cv2.imread(image)
-#            image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+            image = np.array(image)
             image = cv2.resize(image, (500, 500))
 
         elif radio_button=="Citra Semi Homogen":
@@ -172,16 +175,16 @@ def main():
         recons_int=iradon(rsrot_interp_T, filter_name='ramp')
 
         #mengganti tipe data float64 to uint8
-        recons_int_scaled = recons_int * 255
-        recons_int_uint8 = recons_int_scaled.astype(np.uint8)
+        image_resize=cv2.resize(image, (recons_int.shape[0], recons_int.shape[0]))
+        image_resize_scaled=abs(np.round(image_resize *255).astype(int))
+        image_resize_uint8 = image_resize_scaled.astype(np.uint8)
 
-        image_scaled = image * 255
-        image_uint8 = image_scaled.astype(np.uint8)
+        recons_int_switch = recons_int [::-1]
 
         # Display images in 2x3 layout
         col1, col2 = st.columns([5.7, 4.3])
 
-        # Bagi daftar gambar menjadi dua bagian
+        # Membagi daftar gambar menjadi dua bagian
         images_part1 = image
         fig0, ax0 = plt.subplots(figsize=(8, 6))
         fig1, ax1 = plt.subplots(figsize=(8, 6))
@@ -192,13 +195,13 @@ def main():
         fig6, ax6 = plt.subplots(figsize=(3, 3))
         fig7, ax7 = plt.subplots(figsize=(8, 6))
         fig8, ax8 = plt.subplots(figsize=(8, 6))
+        fig9, ax9 = plt.subplots(figsize=(3, 3))
 
 
         # Tampilkan gambar-gambar dari bagian pertama di baris pertama
         with col1:
 
             st.write ('Plot Profil intensitas')
-#            plt.figure(figsize=(8, 6))
             ax0.plot(rsn, rsrot_T[:,0], label='Grafik 1')
             ax0.plot(rs_rdc, rsrot_rdc_T[:,0], label='Grafik 2')
             ax0.plot(rint, rsrot_interp_T[:,0], label='Grafik 3')
@@ -212,7 +215,7 @@ def main():
 
         with col2:
             st.write ('Citra Asli')
-            st.image(images_part1, use_column_width=True)
+            st.image(image, use_column_width=True, caption='citra asli')
 
         # Tampilkan gambar-gambar dari bagian kedua di baris kedua
         with col1:
@@ -222,7 +225,7 @@ def main():
             ax1.set_ylabel('$r$', fontsize=20)
         with col2:
 #            st.write ('Citra hasil rekonstruksi sebelum pengurangan RS & ekstensi data')
-            ax2.imshow(recons, cmap='gray')
+            ax2.imshow(recons[::-1], cmap='gray')
             ax2.axis('off')
 
         # Tampilkan gambar-gambar dari bagian pertama di baris ketiga
@@ -233,7 +236,7 @@ def main():
             ax3.set_ylabel('$r$', fontsize=20)
         with col2:
 #            st.write ('Citra hasil rekonstruksi setelah pengurangan RS & sebelum ekstensi data')
-            ax4.imshow(recons_rdc, cmap='gray')
+            ax4.imshow(recons_rdc[::-1], cmap='gray')
             ax4.axis('off')
 
         # Tampilkan gambar-gambar dari bagian kedua di baris keempat
@@ -244,24 +247,45 @@ def main():
             ax5.set_ylabel('$r$', fontsize=20)
         with col2:
 #            st.write ('Citra hasil rekonstruksi setelah pengurangan RS & setelah ekstensi data')
-            ax6.imshow(recons_int, cmap='gray')
+            ax6.imshow(recons_int[::-1], cmap='gray')
             ax6.axis('off')
+         
         # Tampilkan histogram citra asli & rekonstruksi
-     
         with col1:
 #            st.write ('histogram citra asli')
-            ax7.hist(image_uint8.ravel(), bins=256, range=[0,256], color='black', alpha=0.7)
-            ax7.set_xlabel(r'Intensitas Piksel')
-            ax7.set_ylabel('Frekuensi')
-            ax7.set_title('histogram citra asli')
+            if radio_button=="Citra Kompleks":
+                ax7.hist(image_resize.ravel(), bins=256, range=[0,256], color='orange', alpha=0.7)
+            else:
+                ax7.hist(image_resize_scaled.ravel(), bins=256, range=[0,256], color='orange', alpha=0.7)
+                ax7.set_xlabel(r'Intensitas Piksel')
+                ax7.set_ylabel('Frekuensi')
+                ax7.set_title('histogram citra asli')
         with col2:
 #            st.write ('histogram citra rekonstruksi')
-            ax8.hist(recons_int_uint8.ravel(), bins=256, range=[0,256], color='black', alpha=0.7)
+            ax8.hist(float64touint8(recons_int_switch).ravel(), bins=256, range=[0,256], color='orange', alpha=0.7)
             ax8.set_xlabel(r'Intensitas Piksel')
             ax8.set_ylabel('Frekuensi')
             ax8.set_title('histogram citra rekonstruksi')
 
-        st.pyplot(fig1)
+        # citra interpolasi setelah konversi data
+        with col1:
+            ax9.imshow(float64touint8(recons_int_switch), cmap='gray')
+            ax9.axis('off')
+            ax9.set_title('float64touint8()')
+        with col2:
+        # Menghitung MSE
+            if radio_button=="Citra Kompleks":
+                mse = np.mean((image_resize- float64touint8(recons_int_switch)) ** 2)
+            else: 
+                mse = np.mean((image_resize_scaled- float64touint8(recons_int_switch)) ** 2)
+            st.write("Mean Squared Error (MSE):", mse)
+
+        # Menghitung RMSE
+            rmse = np.sqrt(mse)
+            st.write("Root Mean Squared Error (RMSE):", rmse)
+
+
+        st.pyplot(fig1)#, width=400, height=300)
         st.pyplot(fig2)
         st.pyplot(fig3)
         st.pyplot(fig4)
@@ -269,6 +293,8 @@ def main():
         st.pyplot(fig6)
         st.pyplot(fig7)
         st.pyplot(fig8)
+        st.pyplot(fig9)
+
 
 if __name__ == '__main__':
     main()
